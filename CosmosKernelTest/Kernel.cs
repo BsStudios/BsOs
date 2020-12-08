@@ -41,8 +41,10 @@ namespace CosmosKernelTest
                 {
                     Console.Clear();
                 }
+                else
+                {
 
-
+                }
             }
         }
     }
