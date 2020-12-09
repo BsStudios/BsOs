@@ -53,20 +53,21 @@ namespace CosmosKernelTest
                     else
                     {
                         string tempcurrentdir = currentdir;
-                        if (temp[1].StartsWith('.') && !temp[1].StartsWith(".."))
+                        if (temp[1].StartsWith(@".\") && !temp[1].StartsWith(@"..\"))
                         {
-                            currentdir += temp[1].Remove(0, 2);
+                            currentdir += temp[1].Remove(0, 1);
                         }
-                        else if (temp[1].StartsWith(".."))
+                        else if (temp[1].StartsWith(@"..\"))
                         {
                             string[] temp2 = currentdir.Split('\\');
                             temp2[temp2.Length - 1] = "";
-                            string fintemp = "";
+                            string fintemp = temp2[0];
                             foreach(string tempp in temp2)
                             {
-                                fintemp += tempp;
+                                fintemp += @"\"+tempp;
                             }
-                            currentdir += temp[1].Remove(0, 3);
+                            currentdir = fintemp;
+                            currentdir += temp[1].Remove(0, 2);
                         }
                         else if (temp[1].StartsWith(@"0:\") || temp[1].StartsWith(@"1:\") || temp[1].StartsWith(@"2:\") || temp[1].StartsWith(@"3:\"))
                         {
@@ -77,15 +78,7 @@ namespace CosmosKernelTest
                             currentdir += temp[1];
                         }
 
-                        try
-                        {
-                            fs.GetDirectory(currentdir);
-                        }
-                        catch(Exception e)
-                        {
-                            Console.WriteLine("\nDirectory Does Not Exist\n");
-                            currentdir = tempcurrentdir;
-                        }
+                        
                     }
                 }
                 else if (input.ToLower().StartsWith("ls")) // ls command
