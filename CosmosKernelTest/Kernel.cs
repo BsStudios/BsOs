@@ -11,7 +11,7 @@ namespace CosmosKernelTest
 {
     public class Kernel : Sys.Kernel
     {
-        string currentdir = "0:/";
+        string currentdir = @"0:\";
         Sys.FileSystem.CosmosVFS fs = null;
 
         protected override void BeforeRun()
@@ -31,9 +31,6 @@ namespace CosmosKernelTest
             {
                 Console.Write(currentdir+" >> ");
                 string input = Console.ReadLine();
-                Regex reg1 = new Regex("cd*");
-                Regex reg2 = new Regex("ls*");
-                Regex reg3 = new Regex("mkdir*");
                 if (input.ToLower() == "shutdown")
                 {
                     Sys.Power.Shutdown();
@@ -46,14 +43,55 @@ namespace CosmosKernelTest
                 {
                     Console.Clear();
                 }
-                else if (reg1.IsMatch(input.ToLower())) // cd command
-                {
-                    
-                }
-                else if (reg2.IsMatch(input.ToLower())) // ls command
+                else if (input.ToLower().StartsWith("cd"))
                 {
                     string[] temp = input.Split(' ');
-                    if(temp.Length > 1)
+                    if (temp.Length == 1)
+                    {
+                        Console.WriteLine("\nPlease Specify A Directory\n");
+                    }
+                    else
+                    {
+                        string tempcurrentdir = currentdir;
+                        if (temp[1].StartsWith('.') && !temp[1].StartsWith(".."))
+                        {
+                            currentdir += temp[1].Remove(0, 2);
+                        }
+                        else if (temp[1].StartsWith(".."))
+                        {
+                            string[] temp2 = currentdir.Split('\\');
+                            temp2[temp2.Length - 1] = "";
+                            string fintemp = "";
+                            foreach(string tempp in temp2)
+                            {
+                                fintemp += tempp;
+                            }
+                            currentdir += temp[1].Remove(0, 3);
+                        }
+                        else if (temp[1].StartsWith(@"0:\") || temp[1].StartsWith(@"1:\") || temp[1].StartsWith(@"2:\") || temp[1].StartsWith(@"3:\"))
+                        {
+                            currentdir = temp[1];
+                        }
+                        else
+                        {
+                            currentdir += temp[1];
+                        }
+
+                        try
+                        {
+                            fs.GetDirectory(currentdir);
+                        }
+                        catch(Exception e)
+                        {
+                            Console.WriteLine("\nDirectory Does Not Exist\n");
+                            currentdir = tempcurrentdir;
+                        }
+                    }
+                }
+                else if (input.ToLower().StartsWith("ls")) // ls command
+                {
+                    string[] temp = input.Split(' ');
+                    if(temp.Length == 1)
                     {
                         Console.WriteLine();
                         foreach (var file in fs.GetDirectoryListing(currentdir))
@@ -62,11 +100,11 @@ namespace CosmosKernelTest
                         }
                         Console.WriteLine();
                     }
-                    else if (temp.Length > 2)
-                    {
-                        Console.WriteLine("\nTo Many Paramaters Found\n");
-                        continue;
-                    }
+                    //else if (temp.Length > 2)
+                    //{
+                    //    Console.WriteLine("\nTo Many Paramaters Found\n");
+                    //    continue;
+                    //}
                     else
                     {
                         if (temp[1].StartsWith('.') && !temp[1].StartsWith(".."))
@@ -87,7 +125,16 @@ namespace CosmosKernelTest
                             }
                             Console.WriteLine();
                         }
-                        else if (temp[1].StartsWith("/"))
+                        else if (temp[1].StartsWith(@"\"))
+                        {
+                            Console.WriteLine();
+                            foreach (var file in fs.GetDirectoryListing(temp[1]))
+                            {
+                                Console.WriteLine(file.mName);
+                            }
+                            Console.WriteLine();
+                        }
+                        else if (temp[1].StartsWith(@"0:\") || temp[1].StartsWith(@"1:\") || temp[1].StartsWith(@"2:\") || temp[1].StartsWith(@"3:\"))
                         {
                             Console.WriteLine();
                             foreach (var file in fs.GetDirectoryListing(temp[1]))
@@ -107,7 +154,7 @@ namespace CosmosKernelTest
                         }
                     }
                 }
-                else if (reg3.IsMatch(input.ToLower())) // mkdir command
+                else if (input.ToLower().StartsWith("mkdir")) // mkdir command
                 {
                     string[] temp = input.Split(' ');
                     if(temp.Length > 2)
