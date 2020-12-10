@@ -60,14 +60,10 @@ namespace CosmosKernelTest
                         else if (temp[1].StartsWith(@"..\"))
                         {
                             string[] temp2 = currentdir.Split('\\');
-                            temp2[temp2.Length - 1] = "";
-                            string fintemp = temp2[0];
-                            foreach(string tempp in temp2)
-                            {
-                                fintemp += @"\"+tempp;
-                            }
-                            currentdir = fintemp;
-                            currentdir += temp[1].Remove(0, 2);
+                            currentdir.Remove(currentdir.Length - temp2[temp2.Length - 1].Length);
+                            currentdir += temp[1].Remove(0, 3);
+
+
                         }
                         else if (temp[1].StartsWith(@"0:\") || temp[1].StartsWith(@"1:\") || temp[1].StartsWith(@"2:\") || temp[1].StartsWith(@"3:\"))
                         {
@@ -75,10 +71,24 @@ namespace CosmosKernelTest
                         }
                         else
                         {
-                            currentdir += temp[1];
+                            currentdir += @"\" + temp[1];
                         }
 
-                        
+                        string[] currentdirtemp = currentdir.Split('\\');
+                        currentdir = currentdirtemp[0];
+
+                        foreach (string tempp in currentdirtemp)
+                        {
+                            if(tempp == currentdirtemp[0])
+                            {
+
+                            }
+                            else
+                            {
+                                currentdir += @"\" + tempp;
+                            }
+                        }
+
                     }
                 }
                 else if (input.ToLower().StartsWith("ls")) // ls command
